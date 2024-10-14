@@ -5,5 +5,12 @@
 {% endblock %}
 
 {% block body %} 
-    
+    <!-- Search Bar -->
+    <div class="container" style="margin-top:30px;">
+        <form action="/recommendations" method="post" style="display:flex;">
+            <input type="text" class="form-control mr-2" name="prod" placeholder="Search for products...">
+            <input type="number" class="form-control" name="nbr" placeholder="Number of products..." style="width:100px;">
+            <button class="btn btn-primary">Search</button>
+        </form>
+    </div>
 {% endblock %}

@@ -4,7 +4,7 @@
   <title>EchoMart - Where Every Click Matters</title>
 {% endblock %}
 
-{% block body %} 
+{% block body %}
   <!-- Video -->
   <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
     <div class="carousel-inner">
@@ -19,6 +19,62 @@
 
   <!-- Go To Main Page Button -->
   <div class="text-center mt-5">
-    <a  href="main" class="btn btn-primary btn-lg">Go To Main Page</a>
+    <a href="main" class="btn btn-primary btn-lg">Go To Main Page</a>
   </div>
+
+  {% if signup_message %}
+    <h5 style="margin-left:42%;margin-top:10px; font-weight: bold;">{{signup_message}}</h5>
+  {% endif %}
+
+  <!-- Trending Products -->
+  <div class="container mt-5">
+    <h2 class="text-center mb-4">Trending Products</h2>
+    <div class="row mt-4">
+      {% for index, product in trending_products.iterrows() %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+          <div class="card">
+            <img src="{{ product['ImageURL'] }}" class="card-img-top" alt="{{ product['Name'] }}" style="height: 200px;">
+            <div class="card-body">
+                <h5 class="card-title">{{ truncate(product['Name'],12) }}</h5>
+                <p class="card-text">Brand: {{ product['Brand'] }}</p>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#productModal{{ index }}">Buy Now</button>
+            </div>
+          </div>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="productModal{{ index }}" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">{{ product['Name'] }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <img src="{{ product['ImageURL'] }}" class="img-fluid" alt="{{ product['Name'] }}" style="height: 200px;">
+                  </div>
+                  <div class="col-md-8">
+                    <p><strong>Brand:</strong> {{ product['Brand'] }}</p>
+                    <!-- Add other product details here -->
+                    <p><strong>Review Count:</strong> {{ product['ReviewCount'] }}</p>
+                    <p><strong>Rating:</strong> {{ product['Rating'] }}</p>
+                    <p><strong>Price:</strong> {{ random_price }}</p>
+                    <!-- Add more details as needed -->
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Add to Cart</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
 {% endblock %}
