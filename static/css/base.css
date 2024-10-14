@@ -1,0 +1,29 @@
+body {
+    background-color: #f8f9fa;
+}
+.navbar {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+.container {
+    margin-top: 50px;
+}
+.video-background {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+}
+.nav-link:hover {
+    color: orange !important;
+}
+.nav-link.btn {
+    border-radius: 5px;
+}
+
+.modal-content {
+    background-color: #fff;
+    color: #000; 
+}
+.modal-content.dark {
+    background-color: #000; 
+    color: #fff; 
+}
