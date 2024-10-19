@@ -27,3 +27,6 @@ body {
     background-color: #000; 
     color: #fff; 
 }
+footer {
+    bottom: 0;
+}
