@@ -1,0 +1,74 @@
+<div class="content">
+
+  <div class="container">
+    <div class="row align-items-stretch no-gutters contact-wrap">
+      <div class="col-md-12">
+        <div class="form h-100">
+          <h3>Add Product</h3>
+          <form class="mb-5" method="post" id="contactForm" name="contactForm"
+            #formaddproduct="ngForm" (ngSubmit)="addProduct()">
+            <div class="row">
+              <div class="col-md-6 form-group mb-3">
+                <label for class="col-form-label">Product Name *</label>
+                <input type="text" class="form-control" name="Name" id="name"
+                  required minlength="3"
+                  placeholder="Your Product name" [(ngModel)]="product.Name"
+                  #nameInput="ngModel"
+                  [ngClass]="{'is-invalid':(nameInput.touched||nameInput.dirty)&&nameInput.invalid}">
+              </div>
+
+              <span class="invalid-feedback">
+
+                @if(nameInput.errors?.['required']){
+                <span>First Name is required</span>
+                }
+              </span>
+              <div class="col-md-6 form-group mb-3">
+                <label for class="col-form-label">Quantity *</label>
+                <input type="text" class="form-control" name="Quantity"
+                  id="Quantity"
+                  required
+                  placeholder="Your Quantity"
+                  [(ngModel)]="product.Quantity"
+                  #quantityInput="ngModel"
+                  [ngClass]="{'is-invalid':(quantityInput.touched||quantityInput.dirty)&&quantityInput.invalid}">
+              </div>
+              <div class="col-md-6 form-group mb-3">
+                <label for class="col-form-label">Price *</label>
+                <input type="text" class="form-control" name="Price" id="Price"
+                  placeholder="Your Price"
+                  required
+                  [(ngModel)]="product.Price"
+                  #priceInput="ngModel"
+                  [ngClass]="{'is-invalid':(priceInput.touched||priceInput.dirty)&&priceInput.invalid}">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12 form-group mb-3">
+                <label for="message" class="col-form-label">Message *</label>
+                <textarea class="form-control" name="message" id="message"
+                  cols="30" rows="4"
+                  placeholder="Write your message"></textarea>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12 form-group">
+                <button class="btn btn-primary"
+                  type="submit"
+                  [disabled]="formaddproduct.invalid">AddProduct</button>
+              </div>
+            </div>
+          </form>
+
+          <div id="form-message-warning mt-4"></div>
+          <div id="form-message-success">
+            Your message was sent, thank you!
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

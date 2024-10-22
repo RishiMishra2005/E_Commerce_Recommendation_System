@@ -1,0 +1,38 @@
+<div class="container">
+  <label for="filterByName" class="text-bold text-blue fs-5 mb-4 mt-3">Filter
+    By
+    Price</label>
+  <input type="text" class="form-control" id="filterByName" name="filterByName"
+    [(ngModel)]="listFilterValue">
+</div>
+
+<!-- child -->
+<app-products [listFilterValueInchild]="listFilterValue"
+  (addPrdsEvent)="addFunc($event)"></app-products>
+<caption>Cart</caption>
+<table class="table table-dark table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Price</th>
+      <th scope="col">Quantity</th>
+      <th scope="col">Total Price</th>
+      <th scope="col">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    @for(item of cart;track item.id){
+    <tr>
+      <td>{{item.Name}}</td>
+      <td>{{item.Price}}</td>
+      <td>{{item.Quantity}}</td>
+      <td>{{ calculateTotalPrice(item) }}</td>
+      <td><button type="button"
+          class="btn btn-default btn-lg">Delete</button></td>
+
+    </tr>
+    }
+
+  </tbody>
+</table>
