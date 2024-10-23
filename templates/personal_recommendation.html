@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block head %}
+  <title>EchoMart - Where Every Click Matters</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="container mt-5">
+    <h2>Personalized Recommendations</h2>
+    {% if recommendations %}
+        <div class="row">
+            {% for product in recommendations %}
+                <div class="col-md-3">
+                    <div class="card">
+                        <img class="card-img-top" src="{{ product.image_url }}" alt="Product image">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description }}</p>
+                            <a href="{{ url_for('product_details', product_id=product.id) }}" class="btn btn-primary">View Product</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="productModal{{ index }}" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="productModalLabel">{{ product['Name'] }}</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-4">
+                                <img src="{{ product['ImgURL'] }}" class="img-fluid" alt="{{ product['Name'] }}" style="height: 200px;">
+                            </div>
+                            <div class="col-md-8">
+                              <p><strong>Brand:</strong> {{ product['Brand'] }}</p>
+                              <p><strong>Review Count:</strong> {{ product['ReviewCount'] }}</p>
+                              <p><strong>Rating:</strong> {{ product['Rating'] }}</p>
+                              <p><strong>Price:</strong> ₹{{ random_price }}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="button" class="btn btn-primary">Proceed to Buy</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            No personalized recommendations available at the moment. Please explore more products!
+        </div>
+    {% endif %}
+{% endblock %}
