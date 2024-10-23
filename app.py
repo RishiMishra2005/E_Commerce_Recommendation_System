@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, session
 import pandas as pd
 import random
-from util import truncate, price, content_based_recommendations, record_interaction, get_personal_recommendations
+from util import truncate, price, content_based_recommendations
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -35,6 +35,49 @@ class UserInteraction(db.Model):
     product_id = db.Column(db.Integer, nullable=False)
     interaction_count = db.Column(db.Integer, default=1)
 
+def record_interaction(user_id, product_id):
+    # conn = sqlite3.connect('ecom_db.sqlite')
+    # cursor = conn.cursor()
+    # cursor.execute('''SELECT * FROM user_interaction WHERE user_id = ? AND product_id = ?''', (user_id, product_id))
+    # result = cursor.fetchone()
+    
+    # if result:
+    #     cursor.execute('''UPDATE user_interaction SET interaction_count = interaction_count + 1 WHERE user_id = ? AND product_id = ?''', (user_id, product_id))
+    # else:
+    #     cursor.execute('''INSERT INTO user_interaction (user_id, product_id) VALUES (?, ?)''')
+    
+    # conn.commit()
+    # conn.close()
+    ui=UserInteraction.query.filter_by(user_id=user_id, product_id=product_id).first()
+    if(ui):
+        ui.interaction_count += 1
+        db.session.commit()
+    else:
+        new_ui=UserInteraction(user_id=user_id, product_id=product_id, interaction_count=1)
+        db.session.add(new_ui)
+        db.session.commit()
+
+def get_personal_recommendations(user_id):
+    # conn = sqlite3.connect('ecom_db.sqlite')
+    # cursor = conn.cursor()
+    
+    # cursor.execute('''SELECT product_id, interaction_count FROM user_interaction WHERE user_id = ? ORDER BY interaction_count DESC LIMIT 5''', (user_id,))
+    # recommendations = cursor.fetchall()
+    
+    # conn.close()
+    
+    # if recommendations:
+    #     return [row[0] for row in recommendations]
+    # else:
+    #     return []
+    ui=UserInteraction.query.filter_by(user_id=user_id).order_by(UserInteraction.interaction_count.desc()).limit(5).all()
+    print(ui)
+    if(ui):
+        return [row.product_id for row in ui]
+    else:
+        return []
+
+
 # Routes
 @app.route("/")
 def index():
@@ -61,17 +104,20 @@ def indexredirect():
         random_price=random.choice(price)
     )
 
-@app.route("/product/<int:product_id>")
-def product_detail(product_id):
+@app.route("/close", methods=['POST'])
+def close():
     """Display product details and record interaction."""
     user_id = session.get('user_id')
-    
+    data = request.get_json()  # Get the JSON data from the POST request
+    product_id = data.get('product_id')
+    print(product_id)
     if user_id:
         record_interaction(user_id, product_id)
     
-    product = trending_products.loc[trending_products['ID'] == product_id].iloc[0]
+    return {"message": "Product modal closed", "product_id": product_id}
+    #product = trending_products.loc[trending_products['ID'] == product_id].iloc[0]
     
-    return render_template('product_detail.html', product=product)
+    #return render_template('product_detail.html', product=product)
 
 @app.route("/personal_recommendations")
 def personal_recommendations():
@@ -84,11 +130,12 @@ def personal_recommendations():
     recommended_products_ids = get_personal_recommendations(user_id)
     
     recommended_products = trending_products[trending_products['ID'].isin(recommended_products_ids)]
+    print(recommended_products)
     
     if not recommended_products.empty:
         return render_template(
             'personal_recommendation.html', 
-            products=recommended_products,
+            recommendations=recommended_products,
             truncate=truncate,
             random_price=random.choice(price)
         )
@@ -166,4 +213,5 @@ def signin():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
+        print('Table created successfully')
     app.run(debug=True)

@@ -35,31 +35,3 @@ def content_based_recommendations(train_data, item_name, top_n=10):
     recommended_items_details = train_data.iloc[recommended_item_indices][['Name', 'ReviewCount', 'Brand', 'ImgURL', 'Rating']]
     
     return recommended_items_details
-
-def record_interaction(user_id, product_id):
-    conn = sqlite3.connect('ecom_db.sqlite')
-    cursor = conn.cursor()
-    cursor.execute('''SELECT * FROM user_interaction WHERE user_id = ? AND product_id = ?''', (user_id, product_id))
-    result = cursor.fetchone()
-    
-    if result:
-        cursor.execute('''UPDATE user_interaction SET interaction_count = interaction_count + 1 WHERE user_id = ? AND product_id = ?''', (user_id, product_id))
-    else:
-        cursor.execute('''INSERT INTO user_interaction (user_id, product_id) VALUES (?, ?)''')
-    
-    conn.commit()
-    conn.close()
-
-def get_personal_recommendations(user_id):
-    conn = sqlite3.connect('ecom_db.sqlite')
-    cursor = conn.cursor()
-    
-    cursor.execute('''SELECT product_id, interaction_count FROM user_interaction WHERE user_id = ? ORDER BY interaction_count DESC LIMIT 5''', (user_id,))
-    recommendations = cursor.fetchall()
-    
-    conn.close()
-    
-    if recommendations:
-        return [row[0] for row in recommendations]
-    else:
-        return []

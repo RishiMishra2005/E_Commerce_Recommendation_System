@@ -8,16 +8,15 @@
 
 <div class="container mt-5">
     <h2>Personalized Recommendations</h2>
-    {% if recommendations %}
+    {% if not recommendations.empty %}
         <div class="row">
-            {% for product in recommendations %}
+            {% for index, product in recommendations.iterrows() %}
                 <div class="col-md-3">
                     <div class="card">
-                        <img class="card-img-top" src="{{ product.image_url }}" alt="Product image">
+                      <img src="{{ product['ImageURL'] }}" class="card-img-top" alt="{{ product['Name'] }}" style="height: 200px;">
                         <div class="card-body">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text">{{ product.description }}</p>
-                            <a href="{{ url_for('product_details', product_id=product.id) }}" class="btn btn-primary">View Product</a>
+                            <h5 class="card-title">{{ product['Name'] }}</h5>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#productModal{{ index }}">View Product</button>
                         </div>
                     </div>
                 </div>
