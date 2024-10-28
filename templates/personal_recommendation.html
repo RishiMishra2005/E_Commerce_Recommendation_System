@@ -7,10 +7,10 @@
 {% block body %}
 
 <div class="container mt-5">
-    <h2>Personalized Recommendations</h2>
-    {% if not recommendations.empty %}
+    <h2>Your Interactions</h2>
+    {% if not recommended_products.empty %}
         <div class="row">
-            {% for index, product in recommendations.iterrows() %}
+            {% for index, product in recommended_products.iterrows() %}
                 <div class="col-md-3">
                     <div class="card">
                       <img src="{{ product['ImageURL'] }}" class="card-img-top" alt="{{ product['Name'] }}" style="height: 200px;">
@@ -26,6 +26,58 @@
                       <div class="modal-content">
                         <div class="modal-header">
                           <h5 class="modal-title" id="productModalLabel">{{ product['Name'] }}</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-4">
+                                <img src="{{ product['ImageURL'] }}" class="img-fluid" alt="{{ product['Name'] }}" style="height: 200px;">
+                            </div>
+                            <div class="col-md-8">
+                              <p><strong>Brand:</strong> {{ product['Brand'] }}</p>
+                              <p><strong>Review Count:</strong> {{ product['ReviewCount'] }}</p>
+                              <p><strong>Rating:</strong> {{ product['Rating'] }}</p>
+                              <p><strong>Price:</strong> ₹{{ random_price }}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="button" class="btn btn-primary">Proceed to Buy</button>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            No personalized recommendations available at the moment. Please explore more products!
+        </div>
+    {% endif %}
+
+    <h2>Your Personal Recommendations</h2>
+    {% if not additional_recommendations.empty %}
+        <div class="row">
+            {% for index, product in additional_recommendations.iterrows() %}
+                <div class="col-md-3">
+                    <div class="card">
+                      <img src="{{ product['ImgURL'] }}" class="card-img-top" alt="{{ product['Name'] }}" style="height: 200px;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product['Name'] }}</h5>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#additionalProductModal{{ index }}">View Product</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="additionalProductModal{{ index }}" tabindex="-1" role="dialog" aria-labelledby="additionalProductModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="additionalProductModalLabel">{{ product['Name'] }}</h5>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                           </button>
@@ -49,13 +101,15 @@
                         </div>
                       </div>
                     </div>
-                  </div>
+                </div>
 
             {% endfor %}
         </div>
     {% else %}
         <div class="alert alert-info" role="alert">
-            No personalized recommendations available at the moment. Please explore more products!
+            No additional recommendations available at the moment.
         </div>
     {% endif %}
+</div>
+
 {% endblock %}

@@ -55,7 +55,7 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" data-product-id="{{ product['ID'] }}" onclick="sendCloseEvent(this)">Close</button>
                 <button type="button" class="btn btn-primary">Proceed to Buy</button>
               </div>
             </div>
@@ -67,4 +67,25 @@
     {% else %}
     <h5 class="text-center mt-5 text-muted">{{ message }}</h5>
     {% endif %}
+
+    <script>
+      function sendCloseEvent(buttonElement) {
+        const productId = buttonElement.getAttribute('data-product-id'); // Get product ID from data attribute
+        fetch('/close', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ product_id: productId }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+      }
+    </script>
+
 {% endblock %}

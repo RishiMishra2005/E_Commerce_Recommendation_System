@@ -36,18 +36,6 @@ class UserInteraction(db.Model):
     interaction_count = db.Column(db.Integer, default=1)
 
 def record_interaction(user_id, product_id):
-    # conn = sqlite3.connect('ecom_db.sqlite')
-    # cursor = conn.cursor()
-    # cursor.execute('''SELECT * FROM user_interaction WHERE user_id = ? AND product_id = ?''', (user_id, product_id))
-    # result = cursor.fetchone()
-    
-    # if result:
-    #     cursor.execute('''UPDATE user_interaction SET interaction_count = interaction_count + 1 WHERE user_id = ? AND product_id = ?''', (user_id, product_id))
-    # else:
-    #     cursor.execute('''INSERT INTO user_interaction (user_id, product_id) VALUES (?, ?)''')
-    
-    # conn.commit()
-    # conn.close()
     ui=UserInteraction.query.filter_by(user_id=user_id, product_id=product_id).first()
     if(ui):
         ui.interaction_count += 1
@@ -58,25 +46,12 @@ def record_interaction(user_id, product_id):
         db.session.commit()
 
 def get_personal_recommendations(user_id):
-    # conn = sqlite3.connect('ecom_db.sqlite')
-    # cursor = conn.cursor()
-    
-    # cursor.execute('''SELECT product_id, interaction_count FROM user_interaction WHERE user_id = ? ORDER BY interaction_count DESC LIMIT 5''', (user_id,))
-    # recommendations = cursor.fetchall()
-    
-    # conn.close()
-    
-    # if recommendations:
-    #     return [row[0] for row in recommendations]
-    # else:
-    #     return []
     ui=UserInteraction.query.filter_by(user_id=user_id).order_by(UserInteraction.interaction_count.desc()).limit(5).all()
     print(ui)
     if(ui):
         return [row.product_id for row in ui]
     else:
         return []
-
 
 # Routes
 @app.route("/")
@@ -108,39 +83,74 @@ def indexredirect():
 def close():
     """Display product details and record interaction."""
     user_id = session.get('user_id')
-    data = request.get_json()  # Get the JSON data from the POST request
+    data = request.get_json()
     product_id = data.get('product_id')
     print(product_id)
     if user_id:
         record_interaction(user_id, product_id)
     
     return {"message": "Product modal closed", "product_id": product_id}
-    #product = trending_products.loc[trending_products['ID'] == product_id].iloc[0]
+
+# @app.route("/personal_recommendations")
+# def personal_recommendations():
+#     """Display personal recommendations for a user."""
+#     user_id = session.get('user_id')
     
-    #return render_template('product_detail.html', product=product)
+#     if not user_id:
+#         return "You need to log in to see personal recommendations."
+    
+#     recommended_products_ids = get_personal_recommendations(user_id)
+    
+#     recommended_products = trending_products[trending_products['ID'].isin(recommended_products_ids)]
+#     print(recommended_products)
+    
+#     if not recommended_products.empty:
+#         return render_template(
+#             'personal_recommendation.html', 
+#             recommendations=recommended_products,
+#             truncate=truncate,
+#             random_price=random.choice(price)
+#         )
+#     else:
+#         return render_template('personal_recommendation.html', message="No personalized recommendations available.")
 
 @app.route("/personal_recommendations")
 def personal_recommendations():
     """Display personal recommendations for a user."""
     user_id = session.get('user_id')
-    
+
     if not user_id:
         return "You need to log in to see personal recommendations."
-    
+
     recommended_products_ids = get_personal_recommendations(user_id)
-    
     recommended_products = trending_products[trending_products['ID'].isin(recommended_products_ids)]
-    print(recommended_products)
-    
-    if not recommended_products.empty:
+
+    # Geting additional content-based recommendations for the interacted products
+    additional_recommendations = pd.DataFrame()
+
+    for product_id in recommended_products_ids:
+        # Fetching the product name safely
+        filtered_name = trending_products[trending_products['ID'] == product_id]['Name']
+        if not filtered_name.empty:
+            product_name = filtered_name.values[0]
+            content_recs = content_based_recommendations(train_data, product_name, 4)
+            additional_recommendations = pd.concat([additional_recommendations, content_recs])
+
+    # Removing duplicates from the additional recommendations
+    additional_recommendations = additional_recommendations.drop_duplicates()
+
+    if not recommended_products.empty or not additional_recommendations.empty:
         return render_template(
             'personal_recommendation.html', 
-            recommendations=recommended_products,
+            recommended_products=recommended_products,
+            additional_recommendations=additional_recommendations,
             truncate=truncate,
             random_price=random.choice(price)
         )
     else:
         return render_template('personal_recommendation.html', message="No personalized recommendations available.")
+
+
 
 @app.route("/recommendations", methods=['POST'])
 def recommendations():
@@ -192,7 +202,7 @@ def signin():
         
         user = Signup.query.filter_by(username=username, password=password).first()
         if user:
-            session['user_id'] = user.id  # Store user id in session for tracking
+            session['user_id'] = user.id
             return render_template(
                 'index.html', 
                 trending_products=trending_products.head(8), 
