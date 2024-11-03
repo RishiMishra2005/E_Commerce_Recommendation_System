@@ -5,6 +5,7 @@ import { ServicesService } from '../../Services/services.service';
 import { CommonModule } from '@angular/common';
 import { ProductsWithApiService } from '../../Services/products-with-api.service';
 import { UserAuthenService } from '../../Services/user-auth.service';
+import { DataTransferServiceService } from '../../Services/data-transfer-service.service';
 
 @Component({
   selector: 'app-proudct-details',
@@ -21,7 +22,8 @@ export class ProudctDetailsComponent  implements OnInit{
   userLog: boolean = false;
 
   constructor(private ProductService:ServicesService,private activatedRoute: ActivatedRoute,private router:Router, 
-    private productWithApiService:ProductsWithApiService,private userAuth:UserAuthenService) {
+    private productWithApiService:ProductsWithApiService,private userAuth:UserAuthenService,
+  private dataTransferService:DataTransferServiceService) {
   }
 
   ngOnInit(): void {
@@ -55,6 +57,19 @@ export class ProudctDetailsComponent  implements OnInit{
       next: (user) => {
         this.userLog = user
         if(this.userLog){
+          // let payload={
+          //   "email":this.dataTransferService.getLoggedUser()?.email,
+          //   "product":this.product
+          // }
+          
+          // this.productWithApiService.addProductToCart(payload).subscribe({
+          //   next:(response)=>{
+          //     console.log("Add to cart response",response);
+          //   },
+          //   error:(error)=>{
+          //     console.error("Error while adding product to cart",error);
+          //   }
+          // });
           let c:string=localStorage.getItem('cart') || "[]";
     let cart = JSON.parse(c);
     cart.push(this.product);

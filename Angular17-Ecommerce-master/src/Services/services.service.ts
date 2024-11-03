@@ -6,6 +6,7 @@ import ICategory from '../models/ICategory';
   providedIn: 'root'
 })
 export class ServicesService {
+  
   private product: IProduct[];
   // productList: IProduct[]= [];
   category: ICategory[];

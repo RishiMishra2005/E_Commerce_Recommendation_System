@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { UserApiService } from '../../Services/user-api.service';
 import { Iuser } from '../../models/iuser';
 import { Router } from '@angular/router';
+import { DataTransferServiceService } from '../../Services/data-transfer-service.service';
 
 @Component({
   selector: 'app-login-auth',
@@ -26,7 +27,8 @@ export class LoginAuthComponent implements OnInit {
     private formbuilder: FormBuilder,
     private userService: UserApiService,
     private router: Router,
-    private userAuth:UserAuthenService
+    private userAuth:UserAuthenService,
+    private dataTransferService:DataTransferServiceService
   ) {
     // Initialize the form with validation rules
     this.userForm = this.formbuilder.group({
@@ -102,6 +104,7 @@ export class LoginAuthComponent implements OnInit {
         newUser.role='U';
       }
       localStorage.setItem("loggedUser",JSON.stringify(newUser));
+      
       this.userAuth.data=localStorage.getItem("userList");
       this.userAuth.userLoggedBehavior.next(true);
       this.userAuth.userList =this.data?JSON.parse(this.data):[];
@@ -115,7 +118,7 @@ export class LoginAuthComponent implements OnInit {
       // this.userService.addNewUser(newUser).subscribe({
       //   next: (response) => {
       //     console.log('User registered successfully:', response);
-
+      //     this.dataTransferService.setLoggedUser(response);
       //     this.router.navigate(['/home']); // Navigate to the home page after successful registration
       //   },
       //   error: (error) => {

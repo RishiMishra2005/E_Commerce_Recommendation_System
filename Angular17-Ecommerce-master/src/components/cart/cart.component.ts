@@ -4,6 +4,8 @@ import IProduct from '../../models/IProduct';
 import { Router } from '@angular/router';
 import { UserAuthenService } from '../../Services/user-auth.service';
 import { Store } from '../../models/Store';
+import { ProductsWithApiService } from '../../Services/products-with-api.service';
+import { DataTransferServiceService } from '../../Services/data-transfer-service.service';
 
 @Component({
   selector: 'app-cart',
@@ -17,7 +19,9 @@ export class CartComponent {
   store = new Store("mainStore", ["product1", "product2"], "../../assets/pngegg.png")
   userLog: boolean = false;
   constructor( private userAuth:UserAuthenService,
-    private router:Router
+    private router:Router,
+    private productService:ProductsWithApiService,
+    private dataTransferService:DataTransferServiceService
   ) {
   }
   ngOnInit(){
@@ -25,6 +29,16 @@ export class CartComponent {
       next: (user) => {
         this.userLog = user
         if(this.userLog){
+          // this.productService.fetchCartDetails(this.dataTransferService.getLoggedUser()).subscribe({
+          //   next:(response)=>{
+          //       if(response){
+          //         this.cartList=response;
+          //       }
+          //   },
+          //   error:(error)=>{
+          //     console.error("Error while fetching cart details",error);
+          //   }
+          // });
           let cart=localStorage.getItem("cart") || "[]";
           this.cartList=JSON.parse(cart);
         }else{

@@ -7,6 +7,7 @@ import { Observable } from 'rxjs/internal/Observable';
   providedIn: 'root'
 })
 export class ProductsWithApiService {
+  
  http={};
   constructor(private httpclient: HttpClient) {
     this.http={
@@ -35,4 +36,13 @@ export class ProductsWithApiService {
   updateProduct(prdID: number, updatedProduct: IProduct): Observable<IProduct> {
     return this.httpclient.put<IProduct>(`http://localhost:3000/products/${prdID}`, JSON.stringify(updatedProduct),this.http);
   }
+
+  fetchCartDetails(user: any):Observable<IProduct[]> {
+    return this.httpclient.get<IProduct[]>(`http://localhost:3000/cart/${user.email}`);
+  }
+
+  addProductToCart(payload: { email: any; product: IProduct | undefined; }):Observable<any> {
+    return this.httpclient.post(`http://localhost:3000/cart`,JSON.stringify(payload),this.http);
+  }
+  
 }

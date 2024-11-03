@@ -11,4 +11,5 @@ export interface Iuser {
   password: string;
 
   role:string;
+  isPresent:boolean;
 }
