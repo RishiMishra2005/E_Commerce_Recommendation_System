@@ -52,4 +52,24 @@ export class CartComponent {
     })
     
   }
+
+  removeFromCart(item: IProduct) {
+    // let user=this.dataTransferService.getLoggedUser();
+    // let payload={
+    //     'email':user.email,
+    //     'product':item
+    // }
+    // this.productService.removeFromCart(payload).subscribe({
+    //   next:(response) => {
+    //     if(response){
+    //       console.log(response);
+    //     }
+    //   }
+    //   ,error :(error) => {
+    //     console.log('Error while removing product',error);
+    //   }
+    // })
+    this.cartList = this.cartList.filter(cartItem => cartItem.id !== item.id);
+	  localStorage.setItem('cart', JSON.stringify(this.cartList));
+  }
 }

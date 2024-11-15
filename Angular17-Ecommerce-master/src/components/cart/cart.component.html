@@ -38,12 +38,15 @@
                 title="xtra large">xl</span>
             </h5>
   
+            
             <div class="action">
               <button class="add-to-cart btn btn-default" type="button"
-                >add to
-                cart</button>
-  
+                >Buy</button><br><br>
+              <button class="add-to-cart btn btn-default" type="button" (click)="removeFromCart(product)"
+              >Remove From
+              Cart</button>
             </div>
+            
           </div>
         </div>
     </ng-container>
