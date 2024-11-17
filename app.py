@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, request, jsonify, session
 import pandas as pd
 import random
 from util import truncate, price, content_based_recommendations
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 app = Flask(__name__)
 
@@ -16,212 +17,197 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///ecom_db.sqlite"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# Define the user models
+# Define the database models
 class Signup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False)
 
-class Signin(db.Model):
+class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    img = db.Column(db.String(255), nullable=True)
+    category_id = db.Column(db.Integer, nullable=True)
+    factory = db.Column(db.String(100), nullable=True)
+    description = db.Column(db.String(500), nullable=True)
+
+class Cart(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_email = db.Column(db.String(100), nullable=False)
+    product_id = db.Column(db.Integer, nullable=False)
 
 class UserInteraction(db.Model):
-    __tablename__ = 'user_interaction'
+    _tablename_ = 'user_interaction'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
     product_id = db.Column(db.Integer, nullable=False)
     interaction_count = db.Column(db.Integer, default=1)
 
+# Helper Functions
 def record_interaction(user_id, product_id):
-    ui=UserInteraction.query.filter_by(user_id=user_id, product_id=product_id).first()
-    if(ui):
+    ui = UserInteraction.query.filter_by(user_id=user_id, product_id=product_id).first()
+    if ui:
         ui.interaction_count += 1
-        db.session.commit()
     else:
-        new_ui=UserInteraction(user_id=user_id, product_id=product_id, interaction_count=1)
-        db.session.add(new_ui)
-        db.session.commit()
+        ui = UserInteraction(user_id=user_id, product_id=product_id, interaction_count=1)
+        db.session.add(ui)
+    db.session.commit()
 
 def get_personal_recommendations(user_id):
-    ui=UserInteraction.query.filter_by(user_id=user_id).order_by(UserInteraction.interaction_count.desc()).limit(5).all()
-    print(ui)
-    if(ui):
-        return [row.product_id for row in ui]
-    else:
-        return []
+    interactions = UserInteraction.query.filter_by(user_id=user_id).order_by(UserInteraction.interaction_count.desc()).limit(5).all()
+    return [interaction.product_id for interaction in interactions]
 
 # Routes
-@app.route("/")
-def index():
-    """Home page with trending products."""
-    return render_template(
-        'index.html',
-        trending_products=trending_products.head(8),
-        truncate=truncate,
-        random_price=random.choice(price)
-    )
-
-@app.route("/main")
-def main():
-    """Main recommendations page."""
-    return render_template("main.html", content_based_rec=None, message="Search for product recommendations.")
-
-@app.route("/index")
-def indexredirect():
-    """Redirect to home page."""
-    return render_template(
-        'index.html',
-        trending_products=trending_products.head(8),
-        truncate=truncate,
-        random_price=random.choice(price)
-    )
-
-@app.route("/close", methods=['POST'])
-def close():
-    """Display product details and record interaction."""
-    user_id = session.get('user_id')
+@app.route('/users', methods=['POST'])
+def add_user():
     data = request.get_json()
-    product_id = data.get('product_id')
-    print(product_id)
-    if user_id:
-        record_interaction(user_id, product_id)
-    
-    return {"message": "Product modal closed", "product_id": product_id}
+    new_user = Signup(username=data['fullName'], email=data['email'], password=data['password'])
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"message": "User added successfully", "user": data}), 201
 
-# @app.route("/personal_recommendations")
-# def personal_recommendations():
-#     """Display personal recommendations for a user."""
-#     user_id = session.get('user_id')
+@app.route('/viewProduct', methods=['POST'])
+def view_product():
+    data = request.get_json()
+    record_interaction(data['user_id'],product_id=data['product_id'])
     
-#     if not user_id:
-#         return "You need to log in to see personal recommendations."
-    
-#     recommended_products_ids = get_personal_recommendations(user_id)
-    
-#     recommended_products = trending_products[trending_products['ID'].isin(recommended_products_ids)]
-#     print(recommended_products)
-    
-#     if not recommended_products.empty:
-#         return render_template(
-#             'personal_recommendation.html', 
-#             recommendations=recommended_products,
-#             truncate=truncate,
-#             random_price=random.choice(price)
-#         )
-#     else:
-#         return render_template('personal_recommendation.html', message="No personalized recommendations available.")
+    return jsonify({"message": "Interaction added successfully"}), 201
 
-@app.route("/personal_recommendations")
+@app.route('/fetchUser', methods=['POST'])
+def fetch_user():
+    data = request.get_json()
+    user = Signup.query.filter_by(email=data['email'], password=data['password']).first()
+    if user:
+        role="U"
+        if(user.email=="rishim842005@gmail.com"):
+            role = "A"
+        return jsonify({"id": user.id, "fullName": user.username, "email":user.email, "password":user.password,"isPresent":"Y",
+                        "role":role}), 200
+    return jsonify({"message": "Invalid credentials"}), 401
+
+@app.route('/products', methods=['GET', 'POST'])
+def manage_products():
+    if request.method == 'GET':
+        products = Product.query.all()
+        return jsonify([{
+            "id": product.id,
+            "Name": product.name,
+            "Quantity": product.quantity,
+            "Price": product.price,
+            "Img": product.img,
+            "Categoryid": product.category_id,
+            "Factory": product.factory,
+            "Description": product.description
+        } for product in products]), 200
+    elif request.method == 'POST':
+        data = request.get_json()
+        new_product = Product(
+            name=data['Name'],
+            quantity=data['Quantity'],
+            price=data['Price'],
+            img=data.get('Img'),
+            category_id=data.get('Categoryid'),
+            factory=data.get('Factory'),
+            description=data.get('Description')
+        )
+        db.session.add(new_product)
+        db.session.commit()
+        return jsonify({"message": "Product added successfully"}), 201
+
+@app.route('/products/<int:prdID>', methods=['GET', 'PUT', 'DELETE'])
+def product_operations(prdID):
+    product = Product.query.get(prdID)
+    if not product:
+        return jsonify({"message": "Product not found"}), 404
+
+    if request.method == 'GET':
+        return jsonify({
+            "id": product.id,
+            "Name": product.name,
+            "Quantity": product.quantity,
+            "Price": product.price,
+            "Img": product.img,
+            "Categoryid": product.category_id,
+            "Factory": product.factory,
+            "Description": product.description
+        }), 200
+    elif request.method == 'PUT':
+        data = request.get_json()
+        product.name = data['Name']
+        product.quantity = data['Quantity']
+        product.price = data['Price']
+        product.img = data.get('Img')
+        product.category_id = data.get('Categoryid')
+        product.factory = data.get('Factory')
+        product.description = data.get('Description')
+        db.session.commit()
+        return jsonify({"message": "Product updated successfully"}), 200
+    elif request.method == 'DELETE':
+        db.session.delete(product)
+        db.session.commit()
+        return jsonify({"message": "Product deleted successfully"}), 200
+
+@app.route('/cart', methods=['POST', 'GET', 'DELETE'])
+def manage_cart():
+    if request.method == 'POST':
+        data = request.get_json()
+        new_cart_item = Cart(user_email=data['email'], product_id=data['product']['id'])
+        db.session.add(new_cart_item)
+        db.session.commit()
+        return jsonify({"message": "Product added to cart"}), 201
+    elif request.method == 'GET':
+        user_email = request.args.get('email')
+        cart_items = Cart.query.filter_by(user_email=user_email).all()
+        products = Product.query.filter(Product.id.in_([item.product_id for item in cart_items])).all()
+        return jsonify([{
+            "id": product.id,
+            "Name": product.name,
+            "Quantity": product.quantity,
+            "Price": product.price,
+            "Img": product.img,
+            "Categoryid": product.category_id,
+            "Factory": product.factory,
+            "Description": product.description
+        } for product in products]), 200
+    elif request.method == 'DELETE':
+        #data = request.get_json()
+        Cart.query.filter_by(user_email=request.args.get('email'), product_id=request.args.get('product_id')).delete()
+        db.session.commit()
+        return jsonify({"message": "Product removed from cart"}), 200
+
+@app.route('/personal_recommendations', methods=['GET'])
 def personal_recommendations():
-    """Display personal recommendations for a user."""
-    user_id = session.get('user_id')
+    user_id = request.args.get('user_id')
 
     if not user_id:
-        return "You need to log in to see personal recommendations."
+        return jsonify({"message": "Please log in to view recommendations"}), 401
+    recommended_productids = get_personal_recommendations(user_id)
+    products = Product.query.filter(Product.id.in_(recommended_productids)).all()
+    return jsonify([{
+            "id": product.id,
+            "Name": product.name,
+            "Quantity": product.quantity,
+            "Price": product.price,
+            "Img": product.img,
+            "Categoryid": product.category_id,
+            "Factory": product.factory,
+            "Description": product.description
+        } for product in products]), 200
 
-    recommended_products_ids = get_personal_recommendations(user_id)
-    recommended_products = trending_products[trending_products['ID'].isin(recommended_products_ids)]
-
-    # Geting additional content-based recommendations for the interacted products
-    additional_recommendations = pd.DataFrame()
-
-    for product_id in recommended_products_ids:
-        # Fetching the product name safely
-        filtered_name = trending_products[trending_products['ID'] == product_id]['Name']
-        if not filtered_name.empty:
-            product_name = filtered_name.values[0]
-            content_recs = content_based_recommendations(train_data, product_name, 4)
-            additional_recommendations = pd.concat([additional_recommendations, content_recs])
-
-    # Removing duplicates from the additional recommendations
-    additional_recommendations = additional_recommendations.drop_duplicates()
-
-    if not recommended_products.empty or not additional_recommendations.empty:
-        return render_template(
-            'personal_recommendation.html', 
-            recommended_products=recommended_products,
-            additional_recommendations=additional_recommendations,
-            truncate=truncate,
-            random_price=random.choice(price)
-        )
-    else:
-        return render_template('personal_recommendation.html', message="No personalized recommendations available.")
-
-
-
-@app.route("/recommendations", methods=['POST'])
-def recommendations():
-    """Display product recommendations based on content."""
-    prod = request.form.get('prod')
-    nbr = int(request.form.get('nbr'))
-
-    content_based_rec = content_based_recommendations(train_data, prod, top_n=nbr)
-
-    if content_based_rec.empty:
-        message = f"No recommendations available for product '{prod}'."
-        return render_template('main.html', content_based_rec=None, message=message)
-    else:
-        return render_template(
-            'main.html', 
-            content_based_rec=content_based_rec, 
-            truncate=truncate,
-            random_price=random.choice(price),
-            message=None
-        )
-
-@app.route("/signup", methods=['POST', 'GET'])
-def signup():
-    """Handle signup requests."""
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-
-        new_signup = Signup(username=username, email=email, password=password)
-        db.session.add(new_signup)
-        db.session.commit()
-
-        return render_template(
-            'index.html', 
-            trending_products=trending_products.head(8), 
-            truncate=truncate,
-            random_price=random.choice(price),
-            signup_message='User signed up successfully!'
-        )
-    return render_template('index.html')
-
-@app.route('/signin', methods=['POST', 'GET'])
-def signin():
-    """Handle signin requests."""
-    if request.method == 'POST':
-        username = request.form['signinUsername']
-        password = request.form['signinPassword']
-        
-        user = Signup.query.filter_by(username=username, password=password).first()
-        if user:
-            session['user_id'] = user.id
-            return render_template(
-                'index.html', 
-                trending_products=trending_products.head(8), 
-                truncate=truncate,
-                random_price=random.choice(price),
-                signup_message='User signed in successfully!'
-            )
-        else:
-            return render_template(
-                'index.html', 
-                trending_products=trending_products.head(8), 
-                truncate=truncate,
-                random_price=random.choice(price),
-                signup_message='Invalid username or password!'
-            )
-    return render_template('index.html')
+@app.route("/recommendations", methods=['POST']) 
+def recommendations(): 
+    data = request.get_json(); 
+    prod = data.get('prod'); 
+    nbr = data.get('nbr', 5)
+    content_based_rec = content_based_recommendations(train_data, prod, top_n=nbr) 
+    return jsonify(content_based_rec.to_dict(orient="records")), 200
 
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-        print('Table created successfully')
+        print("Database initialized")
+        CORS(app)
     app.run(debug=True)

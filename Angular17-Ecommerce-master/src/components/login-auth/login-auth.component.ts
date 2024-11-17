@@ -103,29 +103,30 @@ export class LoginAuthComponent implements OnInit {
       else{
         newUser.role='U';
       }
-      localStorage.setItem("loggedUser",JSON.stringify(newUser));
+      // localStorage.setItem("loggedUser",JSON.stringify(newUser));
       
-      this.userAuth.data=localStorage.getItem("userList");
-      this.userAuth.userLoggedBehavior.next(true);
-      this.userAuth.userList =this.data?JSON.parse(this.data):[];
-      if(this.userAuth.userList){
-        this.userAuth.userList.push(newUser);
-        localStorage.setItem("userList",JSON.stringify(this.userAuth.userList));
-      }
-      else{
-        localStorage.setItem("userList",JSON.stringify([newUser]));
-      }
-      // this.userService.addNewUser(newUser).subscribe({
-      //   next: (response) => {
-      //     console.log('User registered successfully:', response);
-      //     this.dataTransferService.setLoggedUser(response);
-      //     this.router.navigate(['/home']); // Navigate to the home page after successful registration
-      //   },
-      //   error: (error) => {
-      //     console.error('Error occurred during registration:', error);
-      //   }
-      // });
-      this.router.navigate(['/home']);
+      // this.userAuth.data=localStorage.getItem("userList");
+      // this.userAuth.userLoggedBehavior.next(true);
+      // this.userAuth.userList =this.data?JSON.parse(this.data):[];
+      // if(this.userAuth.userList){
+      //   this.userAuth.userList.push(newUser);
+      //   localStorage.setItem("userList",JSON.stringify(this.userAuth.userList));
+      // }
+      // else{
+      //   localStorage.setItem("userList",JSON.stringify([newUser]));
+      // }
+       this.userService.addNewUser(newUser).subscribe({
+         next: (response) => {
+           console.log('User registered successfully:', response);
+           this.dataTransferService.setLoggedUser(response);
+           this.userAuth.userLoggedBehavior.next(true);
+           this.router.navigate(['/home']); // Navigate to the home page after successful registration
+         },
+         error: (error) => {
+           console.error('Error occurred during registration:', error);
+         }
+       });
+      //this.router.navigate(['/home']);
     } else {
       console.log('Form is invalid');
     }

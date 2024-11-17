@@ -9,6 +9,7 @@ import { FormatPaymentPipe } from '../../pipes/format-payment.pipe';
 import { ServicesService } from '../../Services/services.service';
 import { Router, RouterModule } from '@angular/router';
 import { ProductsWithApiService } from '../../Services/products-with-api.service';
+import { DataTransferServiceService } from '../../Services/data-transfer-service.service';
 
 @Component({
   selector: 'app-products',
@@ -23,6 +24,7 @@ export class ProductsComponent {
   selectedItem: IProduct | null = null;
   filteredProducts: IProduct[] = [];
   productsPriceFilter: IProduct[] = [];
+  product: IProduct[] = [];
   @Input() set listFilterValueInchild(value: number) {
     //console.log(value);
     this.productsPriceFilter = this.prdService.applyFilter(value);
@@ -53,7 +55,9 @@ export class ProductsComponent {
     this.productsListFilter = this.prdService.applyFilter(value);
     // console.log(this.productsListFilter);
   }
-    constructor(public prdService:ServicesService, private router:Router , private productWithApiService:ProductsWithApiService) {
+    constructor(public prdService:ServicesService, private router:Router , private productWithApiService:ProductsWithApiService,
+      private dataTransferService:DataTransferServiceService
+    ) {
     // this.product =[
     //   {
     //     ID: 1,
@@ -161,7 +165,20 @@ export class ProductsComponent {
   }
 
 goPrdDetails(prdID:number) {
-    this.router.navigate(['/prd',prdID]);
+    let payload={
+      "user_id":this.dataTransferService.getLoggedUser()?.id,
+      "product_id":prdID
+    }
+    this.productWithApiService.viewProduct(payload).subscribe({
+      next : (response) =>{
+        this.router.navigate(['/prd',prdID]);
+      },
+      error : (error) =>{
+        console.log("Error while saving interaction");
+        this.router.navigate(['/prd',prdID]);
+      }
+    })
+    
   }
 
 deleteProduct(prdID: number) {
@@ -190,13 +207,13 @@ deleteProduct(prdID: number) {
       },
     });
   }
-
+   recommendedProducts: IProduct[] = [];
   ngOnInit() {
     // this.productsListFilter = this.product;
     // this.productsPriceFilter = this.product;
     // this.prdService.getAllPrd();
-     this.productsPriceFilter = this.prdService.getAllPrd();
-    console.log(this.productsListFilter);
+    //  this.productsPriceFilter = this.prdService.getAllPrd();
+    // console.log(this.productsListFilter);
     this.productWithApiService.getAllPrds().subscribe({
        next:(data)=>{
         //console.log(data);
@@ -206,5 +223,21 @@ deleteProduct(prdID: number) {
         console.log(err);
       }
     })
+
+
+    // new
+    //this.fetchRecommendations();
+  }
+
+  fetchRecommendations(): void {
+    let user_id=this.dataTransferService.getLoggedUser()?.id;
+    this.productWithApiService.getPersonalRecommendations(user_id).subscribe(
+      (products) => {
+        this.recommendedProducts = products;
+      },
+      (error) => {
+        console.error('Error fetching recommendations', error);
+      }
+    );
   }
 }

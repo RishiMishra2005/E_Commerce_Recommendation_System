@@ -26,14 +26,8 @@ export class UserAuthComponent {
   }
 
   loginFunc() {
-    console.log(this.userAuth.login(this.email,this.pass));
-    if(this.userAuth.login(this.email,this.pass)){
-      this.isUser = this.userAuth.isUserLogged;
-      this.router.navigate(['/home']);
-    }
-    else{   
-      alert('Invalid User');
-    }
+    this.userAuth.login(this.email,this.pass);
+    
   }
 
   logoutFunc() {

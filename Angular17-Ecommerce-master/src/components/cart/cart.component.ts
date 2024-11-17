@@ -29,18 +29,18 @@ export class CartComponent {
       next: (user) => {
         this.userLog = user
         if(this.userLog){
-          // this.productService.fetchCartDetails(this.dataTransferService.getLoggedUser()).subscribe({
-          //   next:(response)=>{
-          //       if(response){
-          //         this.cartList=response;
-          //       }
-          //   },
-          //   error:(error)=>{
-          //     console.error("Error while fetching cart details",error);
-          //   }
-          // });
-          let cart=localStorage.getItem("cart") || "[]";
-          this.cartList=JSON.parse(cart);
+          this.productService.fetchCartDetails(this.dataTransferService.getLoggedUser()).subscribe({
+            next:(response)=>{
+                if(response){
+                  this.cartList=response;
+                }
+            },
+            error:(error)=>{
+              console.error("Error while fetching cart details",error);
+            }
+          });
+          // let cart=localStorage.getItem("cart") || "[]";
+          // this.cartList=JSON.parse(cart);
         }else{
           this.router.navigate(['/login']);
         }
@@ -54,22 +54,23 @@ export class CartComponent {
   }
 
   removeFromCart(item: IProduct) {
-    // let user=this.dataTransferService.getLoggedUser();
-    // let payload={
-    //     'email':user.email,
-    //     'product':item
-    // }
-    // this.productService.removeFromCart(payload).subscribe({
-    //   next:(response) => {
-    //     if(response){
-    //       console.log(response);
-    //     }
-    //   }
-    //   ,error :(error) => {
-    //     console.log('Error while removing product',error);
-    //   }
-    // })
-    this.cartList = this.cartList.filter(cartItem => cartItem.id !== item.id);
-	  localStorage.setItem('cart', JSON.stringify(this.cartList));
+    let user=this.dataTransferService.getLoggedUser();
+    let payload={
+        'email':user.email,
+        'product_id':item.id
+    }
+    this.productService.removeFromCart(payload).subscribe({
+      next:(response) => {
+        if(response){
+          this.cartList = this.cartList.filter(cartItem => cartItem.id !== item.id);
+          console.log(response);
+        }
+      }
+      ,error :(error) => {
+        console.log('Error while removing product',error);
+      }
+    })
+    // this.cartList = this.cartList.filter(cartItem => cartItem.id !== item.id);
+	  // localStorage.setItem('cart', JSON.stringify(this.cartList));
   }
 }

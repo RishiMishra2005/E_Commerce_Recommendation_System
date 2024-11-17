@@ -15,11 +15,11 @@ export class UserApiService {
     }
    }
   addNewUser(user:Iuser):Observable<Iuser>{
-      return this.httpClient.post<Iuser>(`http://localhost:3000/users/`,JSON.stringify(user),this.http);
+      return this.httpClient.post<Iuser>(`http://127.0.0.1:5000/users`,JSON.stringify(user),this.http);
   }
 
   fetchUserDetails(payload: { email: string; password: string; }) {
-    return this.httpClient.post<any>(`http://localhost:3000/fetchUser/`,payload,this.http);
+    return this.httpClient.post<any>("http://127.0.0.1:5000/fetchUser",payload,this.http);
   }
 
 }

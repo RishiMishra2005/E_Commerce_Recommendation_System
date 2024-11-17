@@ -29,9 +29,9 @@ export class ProudctDetailsComponent  implements OnInit{
   ngOnInit(): void {
   // this.prdID= (this.activatedRoute.snapshot.paramMap.get('productID'))?Number(this.activatedRoute.snapshot.paramMap.get('productID')):0;
   //   this.product = this.ProductService.getProductByID(this.prdID);
-
-
+  
     this.prdIDList = this.ProductService.getPrdIDSList();
+    console.log("call to prdIds");
     // console.log(this.prdIDList);
 
   this.activatedRoute.paramMap.subscribe( paramMap =>{
@@ -57,24 +57,25 @@ export class ProudctDetailsComponent  implements OnInit{
       next: (user) => {
         this.userLog = user
         if(this.userLog){
-          // let payload={
-          //   "email":this.dataTransferService.getLoggedUser()?.email,
-          //   "product":this.product
-          // }
+          let payload={
+            "email":this.dataTransferService.getLoggedUser()?.email,
+            "product":this.product
+          }
           
-          // this.productWithApiService.addProductToCart(payload).subscribe({
-          //   next:(response)=>{
-          //     console.log("Add to cart response",response);
-          //   },
-          //   error:(error)=>{
-          //     console.error("Error while adding product to cart",error);
-          //   }
-          // });
-          let c:string=localStorage.getItem('cart') || "[]";
-    let cart = JSON.parse(c);
-    cart.push(this.product);
-    localStorage.setItem('cart', JSON.stringify(cart));
-    this.router.navigate(['/cart']);
+          this.productWithApiService.addProductToCart(payload).subscribe({
+            next:(response)=>{
+              console.log("Add to cart response",response);
+              this.router.navigate(['/cart']);
+            },
+            error:(error)=>{
+              console.error("Error while adding product to cart",error);
+            }
+          });
+          //let c:string=localStorage.getItem('cart') || "[]";
+          // let cart = JSON.parse(c);
+          // cart.push(this.product);
+          // localStorage.setItem('cart', JSON.stringify(cart));
+          // this.router.navigate(['/cart']);
         }else{
           this.router.navigate(['/login']);
         }

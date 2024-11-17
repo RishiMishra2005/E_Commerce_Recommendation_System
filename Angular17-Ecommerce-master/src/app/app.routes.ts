@@ -10,6 +10,7 @@ import { LoginAuthComponent } from '../components/login-auth/login-auth.componen
 import { UserAuthComponent } from '../components/user-auth/user-auth.component';
 import { userGuardGuard } from '../Guards/user-guard.guard';
 import { CartComponent } from '../components/cart/cart.component';
+import { RecommendedProductComponent } from '../components/recommended-product/recommended-product.component';
 
 export const routes: Routes = [
   { path: '', component: UserAuthComponent, title: 'Home' },
@@ -23,5 +24,6 @@ export const routes: Routes = [
   { path: 'login', component: UserAuthComponent, title: 'Login' },
   { path: 'Obs', component: ObsAndOperatorsComponent, title: 'Observer Page' },
   {path: 'cart', component: CartComponent, title: 'Cart'},
+  {path: 'recommended_product', component: RecommendedProductComponent, title: 'Recommended Product'},
   { path: '**', component: NotfoundpageComponent, title: 'Not found page' }
 ];

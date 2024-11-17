@@ -13,17 +13,17 @@ def truncate(text, length):
 
 def content_based_recommendations(train_data, item_name, top_n=10):
     """Generate content-based recommendations based on product tags."""
-    if item_name not in train_data['Name'].values:
+    if not train_data['Name'].apply(lambda x: item_name.lower() in x.lower()).any():
         print(f"Item '{item_name}' not found in the training data.")
         return pd.DataFrame()
-
+    
     tfidf_vectorizer = TfidfVectorizer(stop_words='english')
     tfidf_matrix_content = tfidf_vectorizer.fit_transform(train_data['Tags'])
     
     print(f"TF-IDF Matrix Shape: {tfidf_matrix_content.shape}")
     
     cosine_similarities_content = cosine_similarity(tfidf_matrix_content, tfidf_matrix_content)
-    item_index = train_data[train_data['Name'] == item_name].index[0]
+    item_index = train_data[train_data['Name'].apply(lambda x: item_name.lower() in x.lower())].index[0]
     similar_items = list(enumerate(cosine_similarities_content[item_index]))
     
     similar_items = sorted(similar_items, key=lambda x: x[1], reverse=True)
@@ -31,6 +31,6 @@ def content_based_recommendations(train_data, item_name, top_n=10):
     
     recommended_item_indices = [x[0] for x in top_similar_items]
     
-    recommended_items_details = train_data.iloc[recommended_item_indices][['Name', 'ReviewCount', 'Brand', 'ImgURL', 'Rating']]
+    recommended_items_details = train_data.iloc[recommended_item_indices][['id','Name', 'ReviewCount', 'Factory', 'Img', 'Rating','Description']]
     
     return recommended_items_details
