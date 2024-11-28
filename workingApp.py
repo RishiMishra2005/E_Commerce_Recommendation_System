@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, session
 import pandas as pd
 import random
-from util import truncate, price, content_based_recommendations, collaborative_recommendations, hybrid_recommendations
+from util import truncate, price, content_based_recommendations
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
@@ -204,35 +204,6 @@ def recommendations():
     nbr = data.get('nbr', 5)
     content_based_rec = content_based_recommendations(train_data, prod, top_n=nbr) 
     return jsonify(content_based_rec.to_dict(orient="records")), 200
-
-# Collaborative Rcommendations
-@app.route('/collaborative_recommendations', methods=['POST'])
-def collaborative_recommendations_route():
-    data = request.get_json()
-    user_id = data.get('user_id')
-    recommendations = collaborative_recommendations(user_id)
-    return jsonify(recommendations), 200
-
-# Hybrid Recommendations
-@app.route("/hybrid_recommendations", methods=['POST'])
-def hybrid_recommendations_api():
-    data = request.get_json()
-    user_id = data.get('user_id')
-    item_name = data.get('item_name')
-    nbr = data.get('nbr', 5)
-
-    if not user_id or not item_name:
-        return jsonify({"message": "User ID and item name are required"}), 400
-
-    try:
-        interaction_data = UserInteraction.query.all()
-        interaction_df = pd.DataFrame([(i.user_id, i.product_id, i.interaction_count) for i in interaction_data], columns=['user_id', 'product_id', 'interaction_count'])
-        user_item_matrix = interaction_df.pivot_table(index='user_id', columns='product_id', values='interaction_count', fill_value=0)
-
-        hybrid_rec = hybrid_recommendations(train_data, user_id, item_name, user_item_matrix, top_n=nbr)
-        return jsonify(hybrid_rec.to_dict(orient="records")), 200
-    except Exception as e:
-        return jsonify({"message": str(e)}), 500
 
 if __name__ == "__main__":
     with app.app_context():
