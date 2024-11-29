@@ -40,7 +40,7 @@ export class ProductsComponent {
   listdata: any;
   index: any;
   itemobj: any;
-
+  isAdmin: any;
   // category: ICategory[];
   productsListFilter: IProduct[] = [];
   discount: DiscountOffers[] = [];
@@ -214,6 +214,7 @@ deleteProduct(prdID: number) {
     // this.prdService.getAllPrd();
     //  this.productsPriceFilter = this.prdService.getAllPrd();
     // console.log(this.productsListFilter);
+    this.isAdmin=this.dataTransferService.getLoggedUser()?.role=='A';
     this.productWithApiService.getAllPrds().subscribe({
        next:(data)=>{
         //console.log(data);

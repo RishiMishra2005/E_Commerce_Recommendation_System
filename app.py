@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, session
 import pandas as pd
 import random
-from util import truncate, price, content_based_recommendations, collaborative_recommendations, hybrid_recommendations
+from util import content_based_recommendations, collaborative_recommendations, hybrid_recommendations
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
@@ -210,7 +210,7 @@ def recommendations():
 def collaborative_recommendations_route():
     data = request.get_json()
     user_id = data.get('user_id')
-    recommendations = collaborative_recommendations(user_id)
+    recommendations = collaborative_recommendations(user_id,UserInteraction.query.all())
     return jsonify(recommendations), 200
 
 # Hybrid Recommendations

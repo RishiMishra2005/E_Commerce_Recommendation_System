@@ -3,7 +3,6 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from flask_sqlalchemy import SQLAlchemy
-from app import UserInteraction, Product
 
 price = [40, 50, 60, 70, 100, 122, 106, 50, 30, 50]
 
@@ -40,8 +39,8 @@ def content_based_recommendations(train_data, item_name, top_n=10):
 
 
 # Collaborative recommendations
-def collaborative_recommendations(user_id):
-    interactions = UserInteraction.query.all()
+def collaborative_recommendations(user_id,interactions):
+    #interactions = UserInteraction.query.all()
 
     interaction_data = [(i.user_id, i.product_id, i.interaction_count) for i in interactions]
     interaction_df = pd.DataFrame(interaction_data, columns=['user_id', 'product_id', 'interaction_count'])

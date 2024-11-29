@@ -83,7 +83,7 @@
             <li class="list-inline-item m-0"><i
                 class="fa fa-star-o text-success"></i></li>
           </ul>
-          <form name="contactForm" (ngSubmit)="editProduct(item.id, item)"
+          <form name="contactForm"  (ngSubmit)="editProduct(item.id, item)"
             #formEditProduct="ngForm">
             <div class="row">
               <div class="col">
@@ -119,9 +119,9 @@
           <button type="submit"
             class="btn btn-primary rounded text-center d-flx m-1"
             (click)="editProduct(item.id,item)"
-            [disabled]="formEditProduct.invalid">
+            [disabled]="formEditProduct.invalid || !isAdmin">
             Edit Product</button>
-          <button type="button"
+          <button type="button" [disabled]="!isAdmin"
             class="btn btn-primary rounded text-center d-flx"
             (click)="deleteProduct(item.id)">Delete
             Product</button>

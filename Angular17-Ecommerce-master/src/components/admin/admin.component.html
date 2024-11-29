@@ -42,14 +42,47 @@
                   #priceInput="ngModel"
                   [ngClass]="{'is-invalid':(priceInput.touched||priceInput.dirty)&&priceInput.invalid}">
               </div>
+
+              <div class="col-md-6 form-group mb-3">
+                <label for class="col-form-label">Image Url *</label>
+                <input type="text" class="form-control" name="Img" id="img"
+                  required 
+                  placeholder="Your Image Url" [(ngModel)]="product.Img"
+                  #imgInput="ngModel"
+                  [ngClass]="{'is-invalid':(imgInput.touched||imgInput.dirty)&&imgInput.invalid}">
+              </div>
+
+              <div class="col-md-6 form-group mb-3">
+                <label for class="col-form-label">Category Id *</label>
+                <input type="text" class="form-control" name="Categoryid" id="Categoryid"
+                  placeholder="Your Category Id"
+                  required
+                  [(ngModel)]="product.Categoryid"
+                  #categoryidInput="ngModel"
+                  [ngClass]="{'is-invalid':(categoryidInput.touched||categoryidInput.dirty)&&categoryidInput.invalid}">
+              </div>
+
+              <div class="col-md-6 form-group mb-3">
+                <label for class="col-form-label">Factory *</label>
+                <input type="text" class="form-control" name="Factory" id="Factory"
+                  placeholder="Your Factory"
+                  required
+                  [(ngModel)]="product.Factory"
+                  #factoryInput="ngModel"
+                  [ngClass]="{'is-invalid':(factoryInput.touched||factoryInput.dirty)&&factoryInput.invalid}">
+              </div>
             </div>
 
             <div class="row">
               <div class="col-md-12 form-group mb-3">
-                <label for="message" class="col-form-label">Message *</label>
-                <textarea class="form-control" name="message" id="message"
+                <label for="message" class="col-form-label">Description *</label>
+                <textarea class="form-control" name="Description" id="Description"
                   cols="30" rows="4"
-                  placeholder="Write your message"></textarea>
+                  placeholder="Write your Description"
+                  required
+                  [(ngModel)]="product.Description"
+                  #descriptionInput="ngModel"
+                  [ngClass]="{'is-invalid':(descriptionInput.touched||descriptionInput.dirty)&&descriptionInput.invalid}"></textarea>
               </div>
             </div>
             <div class="row">

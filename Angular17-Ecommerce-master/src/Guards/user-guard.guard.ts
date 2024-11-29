@@ -7,9 +7,9 @@ export const userGuardGuard: CanActivateFn = (route, state) => {
   const userAuth = inject(UserAuthenService)
   const router = inject(Router);
   const dataTransferService=inject(DataTransferServiceService);
-  const det=localStorage.getItem("loggedUser");
-  //const det=this.dataTransferService.getLoggedUser();
-  if (det!=null && JSON.parse(det).role=='A') {
+  //const det=localStorage.getItem("loggedUser");
+  const det=dataTransferService.getLoggedUser();
+  if (det!=null && det.role=='A') {
     return true
   }
   else {
