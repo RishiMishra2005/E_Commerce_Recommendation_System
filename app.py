@@ -1,7 +1,6 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 import pandas as pd
-import random
-from util import truncate, price, content_based_recommendations, collaborative_recommendations, hybrid_recommendations
+from util import content_based_recommendations, collaborative_recommendations, hybrid_recommendations
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 

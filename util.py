@@ -2,10 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from flask_sqlalchemy import SQLAlchemy
-from app import UserInteraction, Product
-
-price = [40, 50, 60, 70, 100, 122, 106, 50, 30, 50]
+from app import UserInteraction
 
 def truncate(text, length):
     """Truncate text to a given length and add ellipsis."""
