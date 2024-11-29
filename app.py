@@ -8,7 +8,8 @@ app = Flask(__name__)
 
 # Load the product data
 trending_products = pd.read_csv("models/updated_products.csv")
-train_data = pd.read_csv("models/clean_data.csv")
+# train_data = pd.read_csv("models/clean_data.csv")
+train_data = pd.read_csv("models/final_data.csv")
 
 # Flask configuration
 app.secret_key = "secret_key"
@@ -232,6 +233,29 @@ def hybrid_recommendations_api():
         return jsonify(hybrid_rec.to_dict(orient="records")), 200
     except Exception as e:
         return jsonify({"message": str(e)}), 500
+
+# Filter by price 
+@app.route('/products/filterByPrice', methods=['GET'])
+def filter_by_price():
+    try:
+        min_price = request.args.get('min_price', default=0, type=float)
+        max_price = request.args.get('max_price', default=float('inf'), type=float)
+
+        products = Product.query.filter(Product.price >= min_price, Product.price <= max_price).all()
+
+        return jsonify([{
+            "id": product.id,
+            "Name": product.name,
+            "Quantity": product.quantity,
+            "Price": product.price,
+            "Img": product.img,
+            "Categoryid": product.category_id,
+            "Factory": product.factory,
+            "Description": product.description
+        } for product in products]), 200
+    except Exception as e:
+        return jsonify({"message": f"Error: {str(e)}"}), 500
+
 
 if __name__ == "__main__":
     with app.app_context():
