@@ -7,7 +7,6 @@ from flask_cors import CORS
 app = Flask(__name__)
 
 # Load the product data
-trending_products = pd.read_csv("models/updated_products.csv")
 # train_data = pd.read_csv("models/clean_data.csv")
 train_data = pd.read_csv("models/final_data.csv")
 
