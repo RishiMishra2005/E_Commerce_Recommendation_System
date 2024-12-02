@@ -15,5 +15,13 @@
   </head>
   <body>
     <app-root></app-root>
+    <!-- Botpress Chatbot -->
+<script src="https://your-botpress-server/assets/modules/channel-web/inject.js"></script>
+<script>
+  window.botpressWebChat.init({
+    host: "https://your-botpress-server",
+    botId: "your-bot-id"
+  });
+</script>
   </body>
 </html>
