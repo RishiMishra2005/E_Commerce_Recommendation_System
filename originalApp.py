@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, session
 import pandas as pd
 import random
-from util import truncate, price, content_based_recommendations
+from originalUtil import truncate, price, content_based_recommendations
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
