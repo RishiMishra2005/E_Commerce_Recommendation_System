@@ -62,20 +62,7 @@ EchoMart is an innovative e-commerce platform that redefines online shopping wit
 
 ## 🧭 System Flow
 
-```mermaid
-flowchart TD
-    A[User visits site] --> B{Is user logged in?}
-    B -- Yes --> C[Show personalized homepage]
-    B -- No --> D[Show general homepage]
-    C --> E[User interacts with product]
-    D --> E
-    E --> F[Trigger recommendation engine]
-    F --> G[Display suggestions to user]
-    G --> H[User adds item to cart]
-    H --> I[Checkout process]
-    I --> J[Confirmation and payment]
-    J --> K[Order placed]
-```
+![System Flow](EchoMart_Flow_Diagram.png)
 
 ---
 
