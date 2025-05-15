@@ -43,7 +43,7 @@ EchoMart is an innovative e-commerce platform designed to enhance the online sho
 ### Setup  
 1. Clone the repository:  
    ```  
-   git clone https://github.com/username/echomart.git  
+   git clone https://github.com/kshitij7704/E_Commerce_Recommendation_System.git  
    cd echomart
    ```
 2. Set up the backend:
